@@ -92,10 +92,15 @@ def write_res(res, start)
 end
 
 res = teams_matchup(get_teams, get_info)
-write_res(res, WS.num_cols)
 
-# print_matchups(get_teams, res)
-
+if ARGV.empty?
+	write_res(res, WS.num_cols)
+elsif ARGV[0] == "test"
+	print_matchups(get_teams, res)
+else
+	puts "Usage for production: ruby new_corrections.rb "
+	puts "Usage for testing: ruby new_corrections.rb \"test\""
+end
 
 
 
