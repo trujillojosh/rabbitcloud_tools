@@ -1,6 +1,7 @@
 require 'google_drive'
 require 'googleauth'
 require 'fileutils'
+require 'date'
 
 # authenticate a session with your service account
 session = GoogleDrive::Session.from_config("client_secret.json")
@@ -71,20 +72,29 @@ def get_info
 	return info
 end
 
+#find start date of next week
+def next_monday
+	monday = Date.parse("monday")
+	delta = monday >= Date.today ? 0 : 7
+	week_start =  monday + delta
+	return "To Correct (week of " + week_start.month.to_s + "/" + week_start.day.to_s + ")"
+end
+
 # writes new corrections to google sheet
 def write_res(res, start)
 	i = 0
+	WS[1, (start + 1)] = next_monday
 	while i < res.length
 		WS[(i + 2), (start + 1)] = res[i]
 		i += 1
 	end
 	WS.save
 end
-res = teams_matchup(get_teams, get_info)
 
-# print_matchups(get_teams, res)
+res = teams_matchup(get_teams, get_info)
 write_res(res, WS.num_cols)
 
+# print_matchups(get_teams, res)
 
 
 
