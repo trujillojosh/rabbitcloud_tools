@@ -122,12 +122,14 @@ res = teams_matchup(get_teams, get_info)
 if ARGV.empty?
 	write_res(res, WS.num_cols)
 elsif ARGV[0] == "test"
+	print_matchups(get_teams, res)
+elsif ARGV[0] == "slacktest"
 	client.chat_postMessage(channel: 'dev_test2', text: slack_format(get_teams, res), as_user: true)
 	puts slack_format(get_teams, res)
-	# print_matchups(get_teams, res)
 else
 	puts "Usage for production: ruby new_corrections.rb "
-	puts "Usage for testing: ruby new_corrections.rb \"test\""
+	puts "Usage for local testing: ruby new_corrections.rb \"test\""
+	puts "Usage for slack testing: ruby new_corrections.rb \"slacktest\""
 end
 
 
