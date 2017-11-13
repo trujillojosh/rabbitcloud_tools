@@ -2,11 +2,35 @@ require 'google_drive'
 require 'googleauth'
 require 'fileutils'
 require 'date'
+require 'slack-ruby-client'
 
 # authenticate a session with your service account
 session = GoogleDrive::Session.from_config("client_secret.json")
 
 WS = session.spreadsheet_by_key("1wQA-jDQfux5K8Y7mkcYtn7MKgkf3GUL1bHAJ7F_Frbw").worksheets[0]
+
+#authenticates slackbot
+Slack.configure do |config|
+	config.token = ENV['SLACK_API_TOKEN']
+end
+client = Slack::Web::Client.new
+client.auth_test
+
+# formats correct slack message
+def slack_format(teams, res)
+	i = 0
+	message = '<!channel> Here are this week\'s peer reviews:
+
+'
+	teams.each do |curr|
+		message = message + '>' + '*' + curr.to_s + '*' + ' will correct ' + '*' + res[i].to_s + '*' + '
+'
+		i += 1
+	end
+	message = message + '
+Remember to fill out the following form during your correction: https://goo.gl/forms/vSxwBihzUOLZ0E903'
+	return message
+end
 
 # prints weekly matchups for each team, used for debugging only
 def print_matchups(team, to_correct)
@@ -42,7 +66,9 @@ def teams_matchup(team, info)
 			i += 1
 		elsif ((i + 1) == team.length)
 			i = 0
+			random.clear
 			random = team.shuffle
+			corr.clear
 		else
 			random.shuffle!
 		end
@@ -96,7 +122,9 @@ res = teams_matchup(get_teams, get_info)
 if ARGV.empty?
 	write_res(res, WS.num_cols)
 elsif ARGV[0] == "test"
-	print_matchups(get_teams, res)
+	client.chat_postMessage(channel: 'dev_test2', text: slack_format(get_teams, res), as_user: true)
+	puts slack_format(get_teams, res)
+	# print_matchups(get_teams, res)
 else
 	puts "Usage for production: ruby new_corrections.rb "
 	puts "Usage for testing: ruby new_corrections.rb \"test\""
