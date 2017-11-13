@@ -19,6 +19,7 @@ client.auth_test
 # formats correct slack message
 def slack_format(teams, res)
 	i = 0
+	message = String.new
 	message = '<!channel> Here are this week\'s peer reviews:
 
 '
@@ -101,8 +102,9 @@ end
 #find start date of next week
 def next_monday
 	monday = Date.parse("monday")
-	delta = monday >= Date.today ? 0 : 7
-	week_start =  monday + delta
+	# delta = monday >= Date.today ? 0 : 7
+	# uncomment above line and add delta to monday on line below if running before week start
+	week_start =  monday
 	return "To Correct (week of " + week_start.month.to_s + "/" + week_start.day.to_s + ")"
 end
 
@@ -119,16 +121,20 @@ end
 
 res = teams_matchup(get_teams, get_info)
 
-if ARGV.empty?
+if ARGV[0] == 'production'
+	client.chat_postMessage(channel: 'rabbits_cloud', text: slack_format(get_teams, res), as_user: true)
 	write_res(res, WS.num_cols)
-elsif ARGV[0] == "test"
+	puts "success"
+elsif ARGV[0] == "localtest"
+	puts next_monday
 	print_matchups(get_teams, res)
 elsif ARGV[0] == "slacktest"
-	client.chat_postMessage(channel: 'dev_test2', text: slack_format(get_teams, res), as_user: true)
+	client.chat_postMessage(channel: 'rc_dev', text: slack_format(get_teams, res), as_user: true)
+	puts next_monday
 	puts slack_format(get_teams, res)
 else
-	puts "Usage for production: ruby new_corrections.rb "
-	puts "Usage for local testing: ruby new_corrections.rb \"test\""
+	puts "Usage for production: ruby new_corrections.rb \"production\""
+	puts "Usage for local testing: ruby new_corrections.rb \"localtest\""
 	puts "Usage for slack testing: ruby new_corrections.rb \"slacktest\""
 end
 
