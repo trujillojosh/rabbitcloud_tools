@@ -3,6 +3,7 @@ require 'googleauth'
 require 'fileutils'
 require 'date'
 require 'slack-ruby-client'
+require 'timeout'
 
 # authenticate a session with your service account
 session = GoogleDrive::Session.from_config("client_secret.json")
@@ -29,7 +30,7 @@ def slack_format(teams, res)
 		i += 1
 	end
 	message = message + '
-Remember to fill out the following form during your correction: https://goo.gl/forms/vSxwBihzUOLZ0E903'
+Please conduct these corrections between Wednesday and Sunday, it is up to you to work out a time with the other team. Remember to fill out the following form during your correction: https://goo.gl/forms/vSxwBihzUOLZ0E903'
 	return message
 end
 
@@ -45,6 +46,9 @@ end
 # checks if team has corrected current choice before and returns 0 if unique
 def match_check(info, choice)
 	i = 3
+	if choice.length == 1 || info[0] == choice
+		return 1
+	end
 	while i < WS.num_cols
 		if info[i] == choice
 			return 1
@@ -55,26 +59,54 @@ def match_check(info, choice)
 	return 0
 end
 
-# finds unique correctors
-def teams_matchup(team, info)
-	random = team.shuffle
-	corr = Array.new
+# if no possible match left, return 1
+def possible_match(team, choice)
 	i = 0
-	while i < team.length
-		if ((team[i] != random[0]) && (match_check(info[i], random[0]) == 0))
-			corr[i] = random[0]
-			random.delete_at(0)
-			i += 1
-		elsif ((i + 1) == team.length)
-			i = 0
-			random.clear
-			random = team.shuffle
-			corr.clear
+	while i < choice.length
+		if match_check(team, choice[i]) == 0
+			return 0
+		elsif (choice.length == 1) && (team[i] == choice[0])
+			return 1
 		else
-			random.shuffle!
+			i += 1
 		end
 	end
-	return corr
+	return 1
+end
+
+# finds unique correctors
+def teams_matchup(team, info)
+	retry_attempts = 0
+	begin
+		Timeout::timeout(15) do
+			random = team.shuffle
+			corr = Array.new
+			i = 0
+			while i < team.length
+				if ((team[i] != random[0]) && (match_check(info[i], random[0]) == 0))
+					corr[i] = random[0]
+					random.delete_at(0)
+					i += 1
+				elsif possible_match(info[i], random) == 1
+					i = 0
+					random.clear
+					random = team.shuffle
+					corr.clear
+				else
+					random.shuffle!
+				end
+			end
+			return corr
+		end
+	rescue
+		puts "restarting due to timeout"
+		retry_attempts += 1
+		if retry_attempts < 5
+			retry
+		else
+			logs.puts "Timeout error in teams_matchup function"
+		end
+	end
 end
 
 # finds list of all teams in Rabbit Cloud
