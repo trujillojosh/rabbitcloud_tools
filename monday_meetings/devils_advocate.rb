@@ -39,7 +39,7 @@ def contact_devil(teams)
 	teams.each do |team|
 		id = Client.users_info(user: '@' + team)[:user][:id]
 		puts 'login is ' + team + ', id is ' + id
-		Client.chat_postMessage(channel: 'rc_dev', text: 'You have been selected to play the Devil\'s Advocate role at Rabbit Cloud\'s weekly meeting. You will be one of 3 people tasked with this role and your job is to ensure each team is challenged with atleast 1 question during their presentation. Please let me know if you cannot make this meeting or perform this role. Thanks', as_user: true)
+		Client.chat_postMessage(channel: id, text: 'You have been selected to play the Devil\'s Advocate role at Rabbit Cloud\'s weekly meeting. You will be one of 3 people tasked with this role and your job is to ensure each team is challenged with atleast 1 question during their presentation. Please let me know if you cannot make this meeting or perform this role. Thanks', as_user: true)
 	end
 end
 
@@ -63,6 +63,8 @@ end
 
 if ARGV[0] == 'production'
 	contact_devil(find_devil)
+elsif ARGV[0] == 'test'
+	puts find_devil
 else
 	puts "Usage: ruby devils_advocate.rb \"production\""
 end
