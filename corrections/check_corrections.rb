@@ -11,6 +11,7 @@ session = GoogleDrive::Session.from_config("client_secret.json")
 RC_C = session.spreadsheet_by_key("1dxPaBz2RvAIhUKnQmXDyRsA26z5bvOCGrJvqJrapKb4").worksheets[0]
 RC_A = session.spreadsheet_by_key("1wQA-jDQfux5K8Y7mkcYtn7MKgkf3GUL1bHAJ7F_Frbw").worksheets[0]
 RC_AP = session.spreadsheet_by_key("1wQA-jDQfux5K8Y7mkcYtn7MKgkf3GUL1bHAJ7F_Frbw").worksheets[1]
+
 # authenticates slack token
 Slack.configure do |config|
 	config.token = ENV['SLACK_API_TOKEN']
