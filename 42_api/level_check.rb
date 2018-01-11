@@ -2,8 +2,8 @@ require 'oauth2'
 require 'active_support'
 require 'active_support/time'
 
-UID = "9a277b2dd2230520e716e21fb2f44bf162b52d5523930000091768e33510ec60"
-SECRET = "7871e0d145526e0fea6a209ab2a2e7d8ee2c758e5a5dbb5d6f2385a3a555c526"
+UID = ENV['42_API_UID']
+SECRET = ENV['42_api_secret']
 
 client = OAuth2::Client.new(UID, SECRET, site: "https://api.intra.42.fr")
 
