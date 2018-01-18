@@ -74,39 +74,58 @@ def possible_match(team, choice)
 	return 1
 end
 
+# randomly assigns matchup without checking history
+def rematch_ok(team)
+	i = 0
+	corr = Array.new
+	matchups = team.shuffle
+	if team.length == 1
+		return team
+	end
+	while i < team.length
+		if team[i] != matchups[0]
+			corr[i] = matchups[0]
+			matchups.delete_at(0)
+			i += 1
+		else
+			matchups.shuffle!
+			if matchups.length == 1
+				i = 0
+				corr.clear
+			end
+		end
+	end
+	return corr
+end
+
 # finds unique correctors
 def teams_matchup(team, info)
 	retry_attempts = 0
-	begin
-		Timeout::timeout(15) do
-			random = team.shuffle
-			corr = Array.new
+	timeouts = 0
+	random = team.shuffle
+	corr = Array.new
+	i = 0
+	while i < team.length
+		if ((team[i] != random[0]) && (match_check(info[i], random[0]) == 0))
+			corr[i] = random[0]
+			random.delete_at(0)
+			i += 1
+		elsif possible_match(info[i], random) == 1
 			i = 0
-			while i < team.length
-				if ((team[i] != random[0]) && (match_check(info[i], random[0]) == 0))
-					corr[i] = random[0]
-					random.delete_at(0)
-					i += 1
-				elsif possible_match(info[i], random) == 1
-					i = 0
-					random.clear
-					random = team.shuffle
-					corr.clear
-				else
-					random.shuffle!
-				end
-			end
-			return corr
-		end
-	rescue
-		puts "restarting due to timeout"
-		retry_attempts += 1
-		if retry_attempts < 5
-			retry
+			random.clear
+			random = team.shuffle
+			corr.clear
 		else
-			logs.puts "Timeout error in teams_matchup function"
+			retry_attempts += 1
+			if retry_attempts > team.length
+				return rematch_ok(team)
+			else
+				random.shuffle!
+				retry_attempts += 1
+			end
 		end
 	end
+	return corr
 end
 
 # finds list of all teams in Rabbit Cloud
