@@ -12,7 +12,7 @@ WS = session.spreadsheet_by_key("1wQA-jDQfux5K8Y7mkcYtn7MKgkf3GUL1bHAJ7F_Frbw").
 
 #authenticates slackbot
 Slack.configure do |config|
-	config.token = ENV['SLACK_API_TOKEN']
+	config.token = 'xoxp-50141135975-50574969943-271250629333-9cc285a16881a18658b863fcb07018dc'
 end
 client = Slack::Web::Client.new
 client.auth_test
