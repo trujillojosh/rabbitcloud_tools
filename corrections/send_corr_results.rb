@@ -83,6 +83,10 @@ def corr_info(teams, start)
 	return match
 end
 
+def send_message(user)
+	blah
+end
+
 def send_corr(team_corr)
 	q0 = '*Team Corrected by: *'
 	q1 = '*Have the team give a 30 second elevator pitch. Were you able to understand their product/service from their pitch? How can they improve?*'
@@ -92,7 +96,8 @@ def send_corr(team_corr)
 	q5 = '*Any other feedback you would like to give?*'
 	team_corr.each do |team|
 		team[1].each do |user|
-			message = 'Correction Form Feedback' + '
+			begin
+				message = 'Correction Form Feedback' + '
 ' + q0 + '
 ' + '>' + team[2] + '
 ' + q1 + '
@@ -106,23 +111,47 @@ def send_corr(team_corr)
 ' + q5 + '
 ' + '>' + team[7] + '
 '
-			puts 'user is ' + user
-			id = Client.users_info(display_name: 'meo')
-			puts id
-			# Client.chat_postMessage(channel: id, text: message, as_user: true)
+				puts 'user is ' + user
+				if user != 'olkovale'
+					id = Client.users_search(user: user)[:members][0][:id]
+				else
+					id = Client.users_search(user: 'oleg')[:members][1][:id]
+				end
+				puts id
+				think = rand(1..7)
+			rescue
+				think = rand(3..10) * 3
+				puts '	retry, ' + think.to_s + ' seconds'
+				sleep think
+				retry
+			end
+			begin
+				puts '	send message'
+				Client.chat_postMessage(channel: id, text: message, as_user: true)
+			rescue
+				think = rand(3..10) * 2
+				puts '	retry chat post ' + think.to_s + ' seconds'
+				retry
+			end
 		end
 	end
 end
-
 def test_again
-	id = Client.users_info(user: '@' + 'sleung')
+	# id = Client.users_search(user: 'olkovale')[:members][0][:id]
+	id = Client.users_search(user: 'oleg')[:members][1][:id]
 	puts id
 end
 
 if ARGV[0] == 'production'
-	send_corr(corr_info(get_teams, (week_start + 1)))
+	if ARGV[1].length > 0
+		adj = ARGV[1].to_i
+		puts week_start + adj
+		send_corr(corr_info(get_teams, (week_start + adj)))
+	end
 elsif ARGV[0] == 'test'
 	test_again
+elsif ARGV[0] == 'week_start'
+	puts week_start
 else
 	puts "Usage: ruby send_corr_results.rb \"production\""
 end
