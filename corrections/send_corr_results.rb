@@ -136,11 +136,6 @@ def send_corr(team_corr)
 		end
 	end
 end
-def test_again
-	# id = Client.users_search(user: 'olkovale')[:members][0][:id]
-	id = Client.users_search(user: 'oleg')[:members][1][:id]
-	puts id
-end
 
 if ARGV[0] == 'production'
 	if ARGV[1].length > 0
@@ -148,8 +143,6 @@ if ARGV[0] == 'production'
 		puts week_start + adj
 		send_corr(corr_info(get_teams, (week_start + adj)))
 	end
-elsif ARGV[0] == 'test'
-	test_again
 elsif ARGV[0] == 'week_start'
 	puts week_start
 else
