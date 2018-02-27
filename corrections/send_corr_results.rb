@@ -134,6 +134,7 @@ def send_corr(team_corr)
 	end
 end
 
+# can be used to check slack name for accuracy
 def login_test(login)
 	tmp = login.dup
 	id = Client.users_search(user: tmp)[:members][0][:id]
@@ -152,4 +153,5 @@ elsif ARGV[0] == 'intra'
 	login_test(ARGV[1])
 else
 	puts "Usage: ruby send_corr_results.rb \"production\""
+	puts "Instead of production the following arguments can be used:\nintra [login]\nweek_start "
 end
