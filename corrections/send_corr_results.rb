@@ -50,7 +50,8 @@ def return_users(team)
 	res = Array.new
 	while i < RC_AP.num_rows
 		if RC_AP.rows[i][4] == team
-			res.push(RC_AP.rows[i][2])
+			res.push(RC_AP.rows[i][6])
+			puts RC_AP.rows[i][6]
 		end
 		i += 1
 	end
@@ -112,10 +113,10 @@ def send_corr(team_corr)
 ' + '>' + team[7] + '
 '
 				puts 'user is ' + user
-				if user != 'olkovale'
+				if user != 'palatorr' && user != 'azimina' && user != 'olkovale'
 					id = Client.users_search(user: user)[:members][0][:id]
 				else
-					id = Client.users_search(user: 'oleg')[:members][1][:id]
+					id = Client.users_search(user: 'josh')[:members][0][:id]
 				end
 				puts id
 				think = rand(1..7)
@@ -137,6 +138,12 @@ def send_corr(team_corr)
 	end
 end
 
+def login_test(login)
+	tmp = login.dup
+	id = Client.users_search(user: tmp)[:members][0][:id]
+	puts id
+end
+
 if ARGV[0] == 'production'
 	if ARGV[1].length > 0
 		adj = ARGV[1].to_i
@@ -145,6 +152,8 @@ if ARGV[0] == 'production'
 	end
 elsif ARGV[0] == 'week_start'
 	puts week_start
+elsif ARGV[0] == 'intra'
+	login_test(ARGV[1])
 else
 	puts "Usage: ruby send_corr_results.rb \"production\""
 end
