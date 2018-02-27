@@ -84,10 +84,6 @@ def corr_info(teams, start)
 	return match
 end
 
-def send_message(user)
-	blah
-end
-
 def send_corr(team_corr)
 	q0 = '*Team Corrected by: *'
 	q1 = '*Have the team give a 30 second elevator pitch. Were you able to understand their product/service from their pitch? How can they improve?*'
