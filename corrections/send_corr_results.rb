@@ -36,7 +36,7 @@ def week_start
 	while i < RC_C.num_rows
 		tmp = RC_C.rows[i][0].split(" ")[0].split("/")
 		date = Date.parse(tmp[2] + '-' + tmp[0] + '-' + tmp[1])
-		if (Date.parse("monday") - 7) <= date
+		if (Date.parse("wednesday") - 7) <= date
 			return i
 		end
 		i += 1
@@ -112,10 +112,14 @@ def send_corr(team_corr)
 ' + '>' + team[7] + '
 '
 				puts 'user is ' + user
-				if user != 'olkovale'
-					id = Client.users_search(user: user)[:members][0][:id]
+				if user == 'ksaetern'
+					id = Client.users_search(user: 'danny')[:members][0][:id]
+				elsif user == 'kcheung'
+					id = Client.users_search(user: 'kenneth')[:members][0][:id]
+				elsif user == 'jpfeffer'
+					id = Client.users_search(user: 'justin')[:members][0][:id]
 				else
-					id = Client.users_search(user: 'oleg')[:members][1][:id]
+					id = Client.users_search(user: user)[:members][0][:id]
 				end
 				puts id
 				think = rand(1..7)
@@ -137,6 +141,12 @@ def send_corr(team_corr)
 	end
 end
 
+def user_test(user)
+	tmp = user.dup
+	id = Client.users_search(user: tmp)[:members][0][:id]
+	puts id
+end
+
 if ARGV[0] == 'production'
 	if ARGV[1].length > 0
 		adj = ARGV[1].to_i
@@ -145,6 +155,8 @@ if ARGV[0] == 'production'
 	end
 elsif ARGV[0] == 'week_start'
 	puts week_start
+elsif ARGV[0] =='user_test'
+	user_test(ARGV[1])
 else
 	puts "Usage: ruby send_corr_results.rb \"production\""
 end
