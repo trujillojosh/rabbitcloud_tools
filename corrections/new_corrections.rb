@@ -45,27 +45,31 @@ end
 
 # checks if team has corrected current choice before and returns 0 if unique
 def match_check(info, choice)
-	i = 3
+	i = 13 # start of current batch corrections
 	if choice.length == 1 || info[0] == choice
 		return 1
 	end
 	while i < WS.num_cols
 		if info[i] == choice
+			puts '	MATCH. info is ' + info[i] + ' , choice is ' + choice
 			return 1
 		else
+			puts '	No Match. info is ' + info[i] + ' , choice is ' + choice
 			i += 1
 		end
 	end
+	puts '	return 0'
 	return 0
 end
 
 # if no possible match left, return 1
-def possible_match(team, choice)
+def possible_match(info, choice)
 	i = 0
 	while i < choice.length
-		if match_check(team, choice[i]) == 0
+		# puts 'from posssible, team is ' + team[0]
+		if match_check(info, choice[i]) == 0
 			return 0
-		elsif (choice.length == 1) && (team[i] == choice[0])
+		elsif (choice.length == 1) && (info[i] == choice[0])
 			return 1
 		else
 			i += 1
@@ -99,34 +103,64 @@ def rematch_ok(team)
 end
 
 # finds unique correctors
+# teams is array of teams, info is 2d array of matchup history
 def teams_matchup(team, info)
-	retry_attempts = 0
-	timeouts = 0
-	random = team.shuffle
-	corr = Array.new
 	i = 0
+	corr = Array.new
+	random = team.shuffle
 	while i < team.length
 		if ((team[i] != random[0]) && (match_check(info[i], random[0]) == 0))
 			corr[i] = random[0]
 			random.delete_at(0)
 			i += 1
 		elsif possible_match(info[i], random) == 1
+			puts 'no match'
 			i = 0
 			random.clear
 			random = team.shuffle
 			corr.clear
 		else
-			retry_attempts += 1
-			if retry_attempts > team.length
-				return rematch_ok(team)
-			else
-				random.shuffle!
-				retry_attempts += 1
-			end
+			puts 'shuffle'
+			random.shuffle!
 		end
 	end
 	return corr
 end
+# def teams_matchup(team, info)
+# 	retry_attempts = 0
+# 	timeouts = 0
+# 	random = team.shuffle
+# 	corr = Array.new
+# 	i = 0
+# 	puts '\n\n\n\n\n'
+# 	puts info[0]
+# 	while i < team.length
+# 		puts 'from teams_matchup, team is ' + info[i][0]
+# 		if ((team[i] != random[0]) && (match_check(info[i], random[0]) == 0))
+# 			corr[i] = random[0]
+# 			puts '		' + info[i][0] + ' corrected by ' + corr[i] + '/' + random[0] + "\n\n"
+# 			random.delete_at(0)
+# 			i += 1
+# 		elsif possible_match(info[i], random) == 1
+# 			i = 0
+# 			puts '		NO POSSIBLE MATCH'
+# 			random.clear
+# 			random = team.shuffle
+# 			corr.clear
+# 		else
+# 			retry_attempts += 1
+# 			if retry_attempts > (team.length * 2)
+# 				puts '		retry ok'
+# 				return rematch_ok(team)
+# 			else
+# 				random.shuffle!
+# 				retry_attempts += 1
+# 			end
+# 		end
+# 	end
+# 	puts "\n\n\nEND RESULT\n\n\n"
+# 	return corr
+# end
 
 # finds list of all teams in Rabbit Cloud
 def get_teams
@@ -173,7 +207,7 @@ end
 res = teams_matchup(get_teams, get_info)
 
 if ARGV[0] == 'production'
-	client.chat_postMessage(channel: 'rabbits_cloud', text: slack_format(get_teams, res), as_user: true)
+	client.chat_postMessage(channel: 'general', text: slack_format(get_teams, res), as_user: true)
 	write_res(res, WS.num_cols)
 	puts "success"
 elsif ARGV[0] == "localtest"

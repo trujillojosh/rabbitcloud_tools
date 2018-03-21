@@ -50,7 +50,8 @@ def return_users(team)
 	res = Array.new
 	while i < RC_AP.num_rows
 		if RC_AP.rows[i][4] == team
-			res.push(RC_AP.rows[i][2])
+			res.push(RC_AP.rows[i][6])
+			puts RC_AP.rows[i][6]
 		end
 		i += 1
 	end
@@ -83,10 +84,6 @@ def corr_info(teams, start)
 	return match
 end
 
-def send_message(user)
-	blah
-end
-
 def send_corr(team_corr)
 	q0 = '*Team Corrected by: *'
 	q1 = '*Have the team give a 30 second elevator pitch. Were you able to understand their product/service from their pitch? How can they improve?*'
@@ -112,6 +109,7 @@ def send_corr(team_corr)
 ' + '>' + team[7] + '
 '
 				puts 'user is ' + user
+<<<<<<< HEAD
 				if user == 'ksaetern'
 					id = Client.users_search(user: 'danny')[:members][0][:id]
 				elsif user == 'kcheung'
@@ -120,6 +118,12 @@ def send_corr(team_corr)
 					id = Client.users_search(user: 'justin')[:members][0][:id]
 				else
 					id = Client.users_search(user: user)[:members][0][:id]
+=======
+				if user != 'palatorr' && user != 'azimina' && user != 'olkovale'
+					id = Client.users_search(user: user)[:members][0][:id]
+				else
+					id = Client.users_search(user: 'josh')[:members][0][:id]
+>>>>>>> 94045ba708cc6a5c6cb130d3b71d32605273daa2
 				end
 				puts id
 				think = rand(1..7)
@@ -141,8 +145,14 @@ def send_corr(team_corr)
 	end
 end
 
+<<<<<<< HEAD
 def user_test(user)
 	tmp = user.dup
+=======
+# can be used to check slack name for accuracy
+def login_test(login)
+	tmp = login.dup
+>>>>>>> 94045ba708cc6a5c6cb130d3b71d32605273daa2
 	id = Client.users_search(user: tmp)[:members][0][:id]
 	puts id
 end
@@ -155,8 +165,14 @@ if ARGV[0] == 'production'
 	end
 elsif ARGV[0] == 'week_start'
 	puts week_start
+<<<<<<< HEAD
 elsif ARGV[0] =='user_test'
 	user_test(ARGV[1])
+=======
+elsif ARGV[0] == 'intra'
+	login_test(ARGV[1])
+>>>>>>> 94045ba708cc6a5c6cb130d3b71d32605273daa2
 else
 	puts "Usage: ruby send_corr_results.rb \"production\""
+	puts "Instead of production the following arguments can be used:\nintra [login]\nweek_start "
 end
